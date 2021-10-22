@@ -12,6 +12,7 @@ class WikiAPI:
         self.payload = {"action": "parse", "format": "json", "errorformat": "none"}
 
     def getPage(self, page="", headers=None):
+        print(f"[+] Getting {page}...")
         if headers is None:
             headers = {}
         self.headers.update(headers)

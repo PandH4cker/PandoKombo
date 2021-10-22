@@ -1,2 +1,2 @@
 from utils.regex import removeHTMLTag, removeBrackets, removeHTMLComments, \
-    removePunctuations, removeBlacklistedLetters
+    removePunctuations, removeBlacklistedLetters, getRelatedArticlesLinks, getRelatedArticles

@@ -6,6 +6,8 @@ BRACKETS = re.compile("\\[.*?]")
 HTML_COMMENTS = re.compile("<!--.*?-->", re.DOTALL)
 PUNCTUATIONS = re.compile("(&#\\d+;)|([,();″↑«»\":]+)|(\s([.\-·:]+|\\d)\s)|(\\d\.\\d)")
 BLACKLIST_LETTERS = re.compile("([a-zA-Z]\s*?et\s*?[a-zA-Z])|(n o)|(a   b   c)|(v  ·   m)")
+RELATED_ARTICLES = re.compile(r"id=\"Articles_connexes\">.*?<ul>(.*?)<\/ul>", re.MULTILINE | re.DOTALL)
+RELATED_ARTICLES_LINKS = re.compile(r"href=\"(.*?)\"")
 
 
 def removeHTMLTag(html):
@@ -24,5 +26,19 @@ def removePunctuations(html):
     return re.sub(PUNCTUATIONS, "", html)
 
 
-def removeBlacklistedLetters(str):
-    return re.sub(BLACKLIST_LETTERS, "", str)
+def removeBlacklistedLetters(string):
+    return re.sub(BLACKLIST_LETTERS, "", string)
+
+
+def getRelatedArticles(html):
+    return re.search(RELATED_ARTICLES, html)
+
+
+def getRelatedArticlesLinks(html):
+    matches = re.finditer(RELATED_ARTICLES_LINKS, html)
+    return list(map(lambda s: s.replace("href=\"/wiki/", "").replace('"', ""), " ".join(match.group(groupNum)
+                                                                                  for matchNum, match in
+                                                                                  enumerate(matches, start=1)
+                                                                                  for groupNum in
+                                                                                  range(0, len(match.groups()))
+                                                                                  ).split()))
