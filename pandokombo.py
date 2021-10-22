@@ -7,6 +7,7 @@ class PandoKombo:
         self.search = search
         wikiAPI = WikiAPI()
         parser = Parser(wikiAPI.getPage(self.search))
+        parser.writeFile("test.txt")
 
 
 if __name__ == '__main__':

@@ -2,3 +2,4 @@ venv
 *.pyc
 *.iml
 .idea
+*.txt
