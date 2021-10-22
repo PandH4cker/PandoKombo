@@ -10,6 +10,7 @@ class Parser:
         self.counter = Counter()
         self.pageGenerator = pageGenerator
         jsonOutput = json.loads("".join(s.decode() for s in self.pageGenerator))["parse"]
+        print(jsonOutput["text"]["*"])
         self.text = removeBrackets(removeHTMLTag(jsonOutput["text"]["*"]))
         self.text = removePunctuations(removeHTMLComments(self.text))
         self.text = removeBlacklistedLetters(self.text)
