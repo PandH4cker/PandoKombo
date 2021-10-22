@@ -1,14 +1,13 @@
-# This is a sample Python script.
+from API import WikiAPI
+from wikiParser import Parser
 
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
 class PandoKombo:
     def __init__(self, search):
-        pass
+        self.search = search
+        wikiAPI = WikiAPI()
+        parser = Parser(wikiAPI.getPage(self.search))
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    PandoKombo()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    PandoKombo("Commissariat_à_l%27énergie_atomique_et_aux_énergies_alternatives")

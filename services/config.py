@@ -1,1 +1,1 @@
-url = "https://fr.wikipedia.org"
+url: str = "https://fr.wikipedia.org"

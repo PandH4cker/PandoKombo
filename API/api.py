@@ -1,1 +1,0 @@
-endPoint = "/w/api.php"
