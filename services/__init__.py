@@ -18,8 +18,16 @@ def fetchApi(endpoint: str, payload: dict = None, method: str = 'GET', headers: 
     if payload is None:
         payload = {}
 
-    payload["page"] = urllib.parse.unquote(payload["page"])
-    payload = urllib.parse.urlencode(payload)
+    if "page" in payload:
+        payload["page"] = urllib.parse.unquote(payload["page"])
+        payload = urllib.parse.urlencode(payload)
+    elif "titles" in payload:
+        payload["titles"] = urllib.parse.unquote(payload["titles"])
+        payload = urllib.parse.urlencode(payload) + "&prop=extracts&explaintext"
+    elif "srsearch" in payload:
+        payload["srsearch"] = urllib.parse.unquote(payload["srsearch"])
+        payload = urllib.parse.urlencode(payload)
+
     req = urllib.request.Request(f"{url}{endpoint}?{payload}",
                                  headers=headers,
                                  method=method.upper())

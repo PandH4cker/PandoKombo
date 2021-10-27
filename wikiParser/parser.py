@@ -1,37 +1,49 @@
 import json
+import string
 from collections import Counter
 
-from utils import removeHTMLTag, removeBrackets, \
-    removeHTMLComments, removePunctuations, \
-    removeBlacklistedLetters, getRelatedArticlesLinks, getRelatedArticles
+from utils import getRelatedArticlesLinks, getRelatedArticles, Color
 
 
 class Parser:
-    def __init__(self, pageGenerator):
-        self.redArticles = []
+    def __init__(self, pageGenerator=None):
+        self.redArticles = set()
         self.counter = Counter()
-        self.relatedArticles = []
-        self.parseFromGenerator(pageGenerator)
+        self.relatedArticles = set()
+        if pageGenerator is not None:
+            self.parseFromGenerator(pageGenerator)
+
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            p = Parser()
+            p.counter = Counter({**self.counter, **other.counter})
+            return p
+        else:
+            raise NotImplemented
 
     def parseFromGenerator(self, gen, extend=True):
         jsonOutput = json.loads("".join(s.decode() for s in gen))
-        if "errors" not in jsonOutput:
-            jsonOutput = jsonOutput["parse"]
+        if "-1" not in jsonOutput["query"]["pages"]:
+            jsonOutput = jsonOutput["query"]
+            pages = next(iter(jsonOutput["pages"].values()))
+            Color.success(f"Fetching {pages['title']}...")
+            extract = pages["extract"]
+            punctuation = string.punctuation.replace("-", "") \
+                .replace("`", "") \
+                .replace("'", "")
+            extract = extract.translate(str.maketrans(punctuation, ' ' * len(punctuation)))
         else:
-            print("[!] Page provided does not exist..")
+            pages = next(iter(jsonOutput["query"]["pages"].values()))
+            Color.error(f"Can't fetch {pages['title']}...")
             return
         if extend:
-            if relatedArticles := getRelatedArticles(jsonOutput["text"]["*"]):
-                links = getRelatedArticlesLinks(relatedArticles.group(1))
-                links = list(filter(lambda item: "href=" not in item, links))
-                self.relatedArticles.extend(links)
-        text = removeBrackets(removeHTMLTag(jsonOutput["text"]["*"]))
-        text = removePunctuations(removeHTMLComments(text))
-        text = removeBlacklistedLetters(text)
-        self.occurs(text)
+            extractWithParentheses = next(iter(jsonOutput["pages"].values()))["extract"].replace("=", "")
+            if relatedArticles := getRelatedArticles(extractWithParentheses):
+                self.relatedArticles.update(getRelatedArticlesLinks(relatedArticles.group(1)))
+        self.occurs(extract)
 
     def occurs(self, text):
-        self.counter.update(Counter(w for w in text.split() if len(w) > 3 or w.isupper()))
+        self.counter.update(Counter(w.lower() for w in text.split() if (len(w) > 3 or w.isupper()) and w.isalpha()))
 
     def writeFile(self, filename):
         with open(filename, "w", encoding="utf-8") as f:
