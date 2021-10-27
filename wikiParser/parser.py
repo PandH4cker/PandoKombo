@@ -3,13 +3,14 @@ import string
 from collections import Counter
 
 from utils import getRelatedArticlesLinks, getRelatedArticles, Color
+from API import WikiAPI
 
 
 class Parser:
     def __init__(self, pageGenerator=None):
-        self.redArticles = set()
+        self.redArticles = []
         self.counter = Counter()
-        self.relatedArticles = set()
+        self.relatedArticles = []
         if pageGenerator is not None:
             self.parseFromGenerator(pageGenerator)
 
@@ -37,9 +38,10 @@ class Parser:
             Color.error(f"Can't fetch {pages['title']}...")
             return
         if extend:
-            extractWithParentheses = next(iter(jsonOutput["pages"].values()))["extract"].replace("=", "")
-            if relatedArticles := getRelatedArticles(extractWithParentheses):
-                self.relatedArticles.update(getRelatedArticlesLinks(relatedArticles.group(1)))
+            wikiAPI = WikiAPI()
+            jsonOutput = json.loads("".join(s.decode() for s in wikiAPI.getPage(page=pages["title"])))
+            if relatedArticles := getRelatedArticles(jsonOutput["parse"]["text"]["*"]):
+                self.relatedArticles.extend(getRelatedArticlesLinks(relatedArticles.group(1)))
         self.occurs(extract)
 
     def occurs(self, text):

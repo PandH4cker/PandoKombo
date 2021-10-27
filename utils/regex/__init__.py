@@ -8,7 +8,7 @@ PUNCTUATIONS = re.compile("(&#\\d+;)|([,();″↑«»\":]+)|(\s([.\-·:]+|\\d)\s
 BLACKLIST_LETTERS = re.compile("([a-zA-Z]\s*?et\s*?[a-zA-Z])|(n o)|(a   b   c)|(v  ·   m)")
 RELATED_ARTICLES = re.compile(r"id=\"Articles_connexes\">.*?<ul>(.*?)<\/ul>", re.MULTILINE | re.DOTALL)
 RELATED_ARTICLES_LINKS = re.compile(r"href=\"(.*?)\"")
-NEW_RELATED_ARTICLES = re.compile(r"Articles connexes[\n ]*(.*)...Liens externes",
+NEW_RELATED_ARTICLES = re.compile(r"Articles? connexes?[\n ]*(.*)...Liens? externes?",
                                   re.IGNORECASE | re.MULTILINE | re.DOTALL)
 
 
@@ -33,7 +33,7 @@ def removeBlacklistedLetters(string):
 
 
 def getRelatedArticles(html):
-    return re.search(NEW_RELATED_ARTICLES, html)
+    return re.search(RELATED_ARTICLES, html)
 
 
 def reconstructWikiLinks(names):
@@ -41,5 +41,10 @@ def reconstructWikiLinks(names):
 
 
 def getRelatedArticlesLinks(relatedArticlesName):
-    names = filter(None, relatedArticlesName.split("\n"))
-    return reconstructWikiLinks(names)
+    matches = re.finditer(RELATED_ARTICLES_LINKS, relatedArticlesName)
+    return list(map(lambda s: s.replace("href=\"/wiki/", "").replace('"', ""), " ".join(match.group(groupNum)
+                                                                                        for matchNum, match in
+                                                                                        enumerate(matches, start=1)
+                                                                                        for groupNum in
+                                                                                        range(0, len(match.groups()))
+                                                                                        ).split()))

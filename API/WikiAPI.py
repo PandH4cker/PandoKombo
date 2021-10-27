@@ -15,25 +15,28 @@ class WikiAPI:
         if headers is None:
             headers = {}
         self.headers.update(headers)
-        self.payload.update({"action": "query", "list": "search"})
-        self.payload["srsearch"] = s
-        for line in fetchApi(endpoint=endPoint, payload=self.payload, headers=self.headers):
+        payload = dict(self.payload)
+        payload.update({"action": "query", "list": "search"})
+        payload["srsearch"] = s
+        for line in fetchApi(endpoint=endPoint, payload=payload, headers=self.headers):
             yield line
 
     def getExtract(self, page="", headers=None):
         if headers is None:
             headers = {}
         self.headers.update(headers)
-        self.payload.update({"action": "query"})
-        self.payload["titles"] = page
-        for line in fetchApi(endpoint=endPoint, payload=self.payload, headers=self.headers):
+        payload = dict(self.payload)
+        payload.update({"action": "query"})
+        payload["titles"] = page
+        for line in fetchApi(endpoint=endPoint, payload=payload, headers=self.headers):
             yield line
 
     def getPage(self, page="", headers=None):
         if headers is None:
             headers = {}
-        self.payload.update({"action": "parse"})
+        payload = dict(self.payload)
+        payload.update({"action": "parse"})
         self.headers.update(headers)
-        self.payload["page"] = page
-        for line in fetchApi(endpoint=endPoint, payload=self.payload, headers=self.headers):
+        payload["page"] = page
+        for line in fetchApi(endpoint=endPoint, payload=payload, headers=self.headers):
             yield line

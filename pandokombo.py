@@ -1,8 +1,9 @@
 import json
+import urllib.parse
 
 from API import WikiAPI
 from wikiParser import Parser
-from utils import printBanner
+from utils import printBanner, reconstructWikiLinks
 
 
 class PandoKombo:
@@ -21,14 +22,15 @@ class PandoKombo:
                     for index, result in enumerate(searchList):
                         print("\t", index, "-", result["title"])
                     choice = int(input("PandoKombo > Choice >> "))
-                while (depth := (int(input("PandaKombo > Depth (Default 1) >> ") or 1))) < 0: pass
+                depth = int(input("PandaKombo > Depth (Default 1) >> ") or "1")
                 p = Parser(wikiAPI.getExtract(searchList[choice]["title"]))
+                p.redArticles.extend(reconstructWikiLinks([searchList[choice]["title"].lower()]))
                 for i in range(depth):
                     for page in list(p.relatedArticles):
-                        if page.lower() not in p.redArticles:
+                        if urllib.parse.unquote(page.lower()) not in p.redArticles:
                             p.parseFromGenerator(wikiAPI.getExtract(page), i + 1 < depth)
                         p.relatedArticles.remove(page)
-                        p.redArticles.add(page.lower())
+                        p.redArticles.append(urllib.parse.unquote(page.lower()))
                 parser += p
                 cont = True if input("PandoKombo > Continue (y/n) ? (Default False) >> ") in ["Y", "y"] else False
                 if not cont:
