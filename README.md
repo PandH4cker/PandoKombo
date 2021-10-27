@@ -1,4 +1,5 @@
 # PandoKombo
+## Author: [Raphael Dray](https://www.linkedin.com/in/raphaeldray/)
 PandoKombo is a utility program that creates combo list 
 from Wikipedia Articles specifying depth for related articles.
 
